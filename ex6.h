@@ -107,6 +107,15 @@ const char *getTypeName(PokemonType type);
 /* ------------------------------------------------------------
    2) Creating & Freeing Nodes
    ------------------------------------------------------------ */
+   
+/**
+ * @brief Create a Pokemon data node
+ * @param pokedexEntry the Pokemon's PokemonData in the pokedex
+ * @return newly allocated PokemonData*
+ * Why we made it: We need a way to prepare the matching data pointer for
+ * the Pokemon node creation function.
+ */
+PokemonData *createPokemonData(const PokemonData pokedexEntry);
 
 /**
  * @brief Create a BST node with a copy of the given PokemonData.
@@ -260,6 +269,13 @@ void initNodeArray(NodeArray *na, int cap);
  * Why we made it: We want a dynamic list of BST nodes for sorting.
  */
 void addNode(NodeArray *na, PokemonNode *node);
+
+/**
+ * @brief Add an OwnerNode pointer to the owners list
+ * @param owner pointer to OwnerNode
+ * Why we made it: We want to add an owner we've created to the list
+ */
+void addOwner(OwnerNode *owner);
 
 /**
  * @brief Recursively collect all nodes from the BST into a NodeArray.
