@@ -249,6 +249,23 @@ PokemonData *createPokemonData(const PokemonData pokedexEntry) {
     return newPokemon;
 }
 
+// Function to create a new Pokemon node based on the given Pokemon's data
+PokemonNode *createPokemonNode(const PokemonData *data) {
+    // 1) allocate new memory
+    PokemonNode* newPokemon = (PokemonNode*)malloc(sizeof(PokemonNode));
+    if (newPokemon == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    // 2) init data
+    newPokemon->data = data;
+    newPokemon->left = NULL;
+    newPokemon->right = NULL;
+
+    return newPokemon;
+}
+
 // --------------------------------------------------------------
 // Display Menu
 // --------------------------------------------------------------
