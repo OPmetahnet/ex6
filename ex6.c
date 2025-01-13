@@ -266,6 +266,24 @@ PokemonNode *createPokemonNode(const PokemonData *data) {
     return newPokemon;
 }
 
+// Function to create a new owner and add it to the linked-list of owners
+OwnerNode *createOwner(char *ownerName, PokemonNode *starter) {
+    // 1) allocate memory for the new owner
+    OwnerNode *newOwner = (OwnerNode *)malloc(sizeof(OwnerNode));
+    if (newOwner == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    // 2) copy properties into the owner
+    newOwner->ownerName = ownerName;
+    newOwner->pokedexRoot = starter;
+    newOwner->next = NULL;
+    newOwner->prev = NULL;
+
+    return newOwner;
+}
+
 // --------------------------------------------------------------
 // Display Menu
 // --------------------------------------------------------------
