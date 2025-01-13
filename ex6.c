@@ -204,6 +204,31 @@ void printPokemonNode(PokemonNode *node)
            (node->data->CAN_EVOLVE == CAN_EVOLVE) ? "Yes" : "No");
 }
 
+// Function to add a given owner to the existing list of owners
+void addOwner(OwnerNode *owner) {
+    // 1) if there are no owners - make the head point to the new owner
+    if(ownerHead == NULL) {
+        ownerHead = owner;
+        return;
+    }
+
+    // 2) find the node which points to the head node
+    OwnerNode *temp = (OwnerNode *)realloc(ownerHead, sizeof(OwnerNode));
+    if (temp == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    while(temp->next != ownerHead) {
+        temp = temp->next;
+    }
+    // 3) set its next pointer to owner and vice versa
+    temp->next = owner;
+    owner->prev = temp;
+    // 4) set head's prev node pointer to owner and vice versa
+    ownerHead->prev = owner;
+    owner->next = ownerHead;
+}
+
 // --------------------------------------------------------------
 // Display Menu
 // --------------------------------------------------------------
