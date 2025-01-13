@@ -229,6 +229,26 @@ void addOwner(OwnerNode *owner) {
     owner->next = ownerHead;
 }
 
+//Function to create new Pokemon data matching the Pokemon we want to create
+PokemonData *createPokemonData(const PokemonData pokedexEntry) {
+    // 1) allocate data for the data
+    PokemonData* newPokemon = (PokemonData *)malloc(sizeof(PokemonData));
+    if(newPokemon == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    // 2) copy the Pokedex entry details into the new Pokemon's data we've created
+    newPokemon->id = pokedexEntry.id;
+    newPokemon->name = pokedexEntry.name;
+    newPokemon->TYPE = pokedexEntry.TYPE;
+    newPokemon->hp = pokedexEntry.hp;
+    newPokemon->attack = pokedexEntry.attack;
+    newPokemon->CAN_EVOLVE = pokedexEntry.CAN_EVOLVE;
+
+    return newPokemon;
+}
+
 // --------------------------------------------------------------
 // Display Menu
 // --------------------------------------------------------------
