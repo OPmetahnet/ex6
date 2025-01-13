@@ -284,6 +284,54 @@ OwnerNode *createOwner(char *ownerName, PokemonNode *starter) {
     return newOwner;
 }
 
+// Function to create a new Pokedex
+void openPokedexMenu() {
+    // 1) get the name and starter choice form the user
+    printf("Your name: ");
+    char* trainerName = getDynamicInput();
+    int starterChoice = readIntSafe("Choose Starter:\n"
+                 "1. Bulbasaur\n"
+                 "2. Charmander\n"
+                 "3. Squirtle\n"
+                 "Your Choice: ");
+
+    PokemonData* data = NULL;
+
+    // 2) set the new Pokemon Data according to the starter that was picked
+    switch(starterChoice) {
+        //set data to Bulbasaur's data
+        case 1: {
+            data = createPokemonData(pokedex[0]);
+            break;
+        }
+        //set data to Charmander's data
+        case 2: {
+            data = createPokemonData(pokedex[3]);
+            break;
+        }
+        //set data to Squirtle's data
+        case 3: {
+            data = createPokemonData(pokedex[6]);
+            break;
+        }
+        //invalid choice case: free trainerName and go back to main menu
+        default: {
+            printf("Invalid choice.\n");
+            free(trainerName);
+            return;
+        }
+    }
+
+    // 3) create the starter's Pokemon Node based on the data we made
+    PokemonNode* starter = createPokemonNode(data);
+
+    // 4) create the new owner
+    OwnerNode* newOwner = createOwner(trainerName, starter);
+
+    // 5) add the owner to the list of owners
+    addOwner(newOwner);
+}
+
 // --------------------------------------------------------------
 // Display Menu
 // --------------------------------------------------------------
