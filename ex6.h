@@ -278,13 +278,6 @@ void initNodeArray(NodeArray *na, int cap);
 void addNode(NodeArray *na, PokemonNode *node);
 
 /**
- * @brief Add an OwnerNode pointer to the owners list
- * @param owner pointer to OwnerNode
- * Why we made it: We want to add an owner we've created to the list
- */
-void addOwner(OwnerNode *owner);
-
-/**
  * @brief Recursively collect all nodes from the BST into a NodeArray.
  * @param root BST root
  * @param na pointer to NodeArray

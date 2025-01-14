@@ -205,7 +205,7 @@ void printPokemonNode(PokemonNode *node)
 }
 
 // Function to add a given owner to the existing list of owners
-void addOwner(OwnerNode *owner) {
+void linkOwnerInCircularList(OwnerNode *owner) {
     // 1) if there are no owners - make the head point to the new owner
     if(ownerHead == NULL) {
         ownerHead = owner;
@@ -330,7 +330,7 @@ void openPokedexMenu() {
     OwnerNode* newOwner = createOwner(trainerName, starter);
 
     // 5) add the owner to the list of owners
-    addOwner(newOwner);
+    linkOwnerInCircularList(newOwner);
 
     printf("New Pokedex created for %s with starter %s.\n", trainerName, starter->data->name);
 }
