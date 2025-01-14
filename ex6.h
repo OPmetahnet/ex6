@@ -123,7 +123,7 @@ PokemonData *createPokemonData(const PokemonData pokedexEntry);
  * @return newly allocated PokemonNode*
  * Why we made it: We need a standard way to allocate BST nodes.
  */
-PokemonNode *createPokemonNode(const PokemonData *data);
+PokemonNode *createPokemonNode(PokemonData *data);
 
 /**
  * @brief Create an OwnerNode for the circular owners list.
@@ -133,6 +133,13 @@ PokemonNode *createPokemonNode(const PokemonData *data);
  * Why we made it: Each user is represented as an OwnerNode.
  */
 OwnerNode *createOwner(char *ownerName, PokemonNode *starter);
+
+/**
+ * @brief Free a node's Pokemon data
+ * @param data a PokemonData pointer which belongs to a PokemonNode
+ * Why we made it: Convinient and organized way to free the Pokemon data memory
+ */
+void freePokemonData(PokemonData *data);
 
 /**
  * @brief Free one PokemonNode (including name).
