@@ -204,6 +204,138 @@ void printPokemonNode(PokemonNode *node)
            (node->data->CAN_EVOLVE == CAN_EVOLVE) ? "Yes" : "No");
 }
 
+// Function to add a given owner to the existing list of owners
+void linkOwnerInCircularList(OwnerNode *owner) {
+    // 1) if there are no owners - make the head point to the new owner
+    if(ownerHead == NULL) {
+        ownerHead = owner;
+        return;
+    }
+
+    OwnerNode* temp = ownerHead;
+
+    // 2) if the list contains more than the head node - search for the node which points to head
+    if(ownerHead->next != NULL) {
+    while(temp->next != ownerHead) {
+        temp = temp->next;
+    }
+    }
+
+    // 3) set its next pointer to owner and vice versa
+    temp->next = owner;
+    owner->prev = temp;
+
+    // 4) set head's prev node pointer to owner and vice versa
+    ownerHead->prev = owner;
+    owner->next = ownerHead;
+}
+
+//Function to create new Pokemon data matching the Pokemon we want to create
+PokemonData *createPokemonData(const PokemonData pokedexEntry) {
+    // 1) allocate data for the data
+    PokemonData* newPokemon = (PokemonData *)malloc(sizeof(PokemonData));
+    if(newPokemon == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    // 2) copy the Pokedex entry details into the new Pokemon's data we've created
+    newPokemon->id = pokedexEntry.id;
+    newPokemon->name = myStrdup(pokedexEntry.name);
+    newPokemon->TYPE = pokedexEntry.TYPE;
+    newPokemon->hp = pokedexEntry.hp;
+    newPokemon->attack = pokedexEntry.attack;
+    newPokemon->CAN_EVOLVE = pokedexEntry.CAN_EVOLVE;
+
+    return newPokemon;
+}
+
+// Function to create a new Pokemon node based on the given Pokemon's data
+PokemonNode *createPokemonNode(PokemonData *data) {
+    // 1) allocate new memory
+    PokemonNode* newPokemon = (PokemonNode*)malloc(sizeof(PokemonNode));
+    if (newPokemon == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    // 2) init data
+    newPokemon->data = data;
+    newPokemon->left = NULL;
+    newPokemon->right = NULL;
+
+    return newPokemon;
+}
+
+// Function to create a new owner and add it to the linked-list of owners
+OwnerNode *createOwner(char *ownerName, PokemonNode *starter) {
+    // 1) allocate memory for the new owner
+    OwnerNode *newOwner = (OwnerNode *)malloc(sizeof(OwnerNode));
+    if (newOwner == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    // 2) copy properties into the owner
+    newOwner->ownerName = ownerName;
+    newOwner->pokedexRoot = starter;
+    newOwner->next = NULL;
+    newOwner->prev = NULL;
+
+    return newOwner;
+}
+
+// Function to create a new Pokedex
+void openPokedexMenu() {
+    // 1) get the name and starter choice form the user
+    printf("Your name:");
+    char* trainerName = getDynamicInput();
+    int starterChoice = readIntSafe("Choose Starter:\n"
+                 "1. Bulbasaur\n"
+                 "2. Charmander\n"
+                 "3. Squirtle\n"
+                 "Your Choice:");
+
+    PokemonData* data = NULL;
+
+    // 2) set the new Pokemon Data according to the starter that was picked
+    switch(starterChoice) {
+        //set data to Bulbasaur's data
+        case 1: {
+            data = createPokemonData(pokedex[0]);
+            break;
+        }
+        //set data to Charmander's data
+        case 2: {
+            data = createPokemonData(pokedex[3]);
+            break;
+        }
+        //set data to Squirtle's data
+        case 3: {
+            data = createPokemonData(pokedex[6]);
+            break;
+        }
+        //invalid choice case: free trainerName and go back to main menu
+        default: {
+            printf("Invalid choice.\n");
+            free(trainerName);
+            return;
+        }
+    }
+
+    // 3) create the starter's Pokemon Node based on the data we made
+    PokemonNode* starter = createPokemonNode(data);
+
+    // 4) create the new owner
+    OwnerNode* newOwner = createOwner(trainerName, starter);
+
+    // 5) add the owner to the list of owners
+    linkOwnerInCircularList(newOwner);
+
+    printf("New Pokedex created for %s with starter %s.\n", trainerName, starter->data->name);
+}
+}
+
 // --------------------------------------------------------------
 // Display Menu
 // --------------------------------------------------------------
@@ -296,6 +428,96 @@ void enterExistingPokedexMenu()
     } while (subChoice != 6);
 }
 
+// Function to free given Pokemon data in its entirety
+void freePokemonData(PokemonData *data) {
+    // 1) if the data is empty - go back
+    if(data == NULL) {
+        return;
+    }
+
+    // 2) free all data contents
+    free(data->name);
+    data->name = NULL;
+    free(data);
+    data = NULL;
+}
+
+// Function to free the entire data of a given Pokemon Node
+void freePokemonNode(PokemonNode *node) {
+    // 1) if the node is empty - go back
+    if (node == NULL) {
+        return;
+    }
+
+    // 2) free all the node's Pokemon data
+    freePokemonData(node->data);
+
+    // 3) free the node itself
+    free(node);
+    node = NULL;
+}
+
+// Function to free all nodes of an owner's Pokedex tree
+void freePokemonTree(PokemonNode *root) {
+    // 1) if the node is empty - go back
+    if(root == NULL) {
+        return;
+    }
+
+    // 2) go node by node recursively and free its contents
+    freePokemonTree(root->left);
+    freePokemonTree(root->right);
+
+    // 3) free the node's Pokemon data
+    freePokemonNode(root);
+}
+
+// Function to free the entirety of an owner's Pokedex data
+void freeOwnerNode(OwnerNode *owner) {
+    // 1) check if the owner has data, if no - go back
+    if (owner == NULL) {
+        return;
+    }
+
+    // 2) free trainer name data
+    free(owner->ownerName);
+    owner->ownerName = NULL;
+
+    // 3) free the trainer's Pokedex tree
+    freePokemonTree(owner->pokedexRoot);
+
+    // 4) free the node itself
+    free(owner);
+    owner = NULL;
+}
+
+// Function to free all memory related to owners
+void freeAllOwners() {
+    // 1) if the linked list is already empty - no need to free any data
+    if(ownerHead == NULL) {
+        return;
+    }
+
+    // 2) go over every element of the list and free its contents - until the head pointer is reached
+    OwnerNode* currentNode = ownerHead;
+    OwnerNode* traversionNode = NULL;
+
+    //simple linked list navigation using two node* pointers
+    do {
+        //progress traversion node by one step
+        traversionNode = currentNode->next;
+        //free the current node's memory
+        freeOwnerNode(currentNode);
+        //progress the current node to the next
+        if(traversionNode != NULL) {
+            currentNode = traversionNode;
+        }
+    } while (currentNode != ownerHead);
+
+    //avoid dangling head pointer
+    ownerHead = NULL;
+}
+
 // --------------------------------------------------------------
 // Main Menu
 // --------------------------------------------------------------
@@ -312,7 +534,7 @@ void mainMenu()
         printf("5. Sort Owners by Name\n");
         printf("6. Print Owners in a direction X times\n");
         printf("7. Exit\n");
-        choice = readIntSafe("Your choice: ");
+        choice = readIntSafe("Your choice:");
 
         switch (choice)
         {

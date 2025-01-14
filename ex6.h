@@ -107,6 +107,15 @@ const char *getTypeName(PokemonType type);
 /* ------------------------------------------------------------
    2) Creating & Freeing Nodes
    ------------------------------------------------------------ */
+   
+/**
+ * @brief Create a Pokemon data node
+ * @param pokedexEntry the Pokemon's PokemonData in the pokedex
+ * @return newly allocated PokemonData*
+ * Why we made it: We need a way to prepare the matching data pointer for
+ * the Pokemon node creation function.
+ */
+PokemonData *createPokemonData(const PokemonData pokedexEntry);
 
 /**
  * @brief Create a BST node with a copy of the given PokemonData.
@@ -114,7 +123,7 @@ const char *getTypeName(PokemonType type);
  * @return newly allocated PokemonNode*
  * Why we made it: We need a standard way to allocate BST nodes.
  */
-PokemonNode *createPokemonNode(const PokemonData *data);
+PokemonNode *createPokemonNode(PokemonData *data);
 
 /**
  * @brief Create an OwnerNode for the circular owners list.
@@ -124,6 +133,13 @@ PokemonNode *createPokemonNode(const PokemonData *data);
  * Why we made it: Each user is represented as an OwnerNode.
  */
 OwnerNode *createOwner(char *ownerName, PokemonNode *starter);
+
+/**
+ * @brief Free a node's Pokemon data
+ * @param data a PokemonData pointer which belongs to a PokemonNode
+ * Why we made it: Convinient and organized way to free the Pokemon data memory
+ */
+void freePokemonData(PokemonData *data);
 
 /**
  * @brief Free one PokemonNode (including name).
