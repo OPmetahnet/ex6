@@ -267,6 +267,68 @@ PokemonNode *createPokemonNode(PokemonData *data) {
     return newPokemon;
 }
 
+// Function to insert a given PokemonNode to the Owner's Pokedex tree
+PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode) {
+    // 1) If the Pokedex is empty make the root the new Pokemon's node
+    if(root == NULL) {
+        root = newNode;
+        return root;
+    }
+
+    // 2) Check for the right placement for the Pokemon to be put in(by ID)
+    if(newNode->data->id < root->data->id) {
+        root->left = insertPokemonNode(root->left, newNode);
+    }
+    if(newNode->data->id > root->data->id) {
+       root->right = insertPokemonNode(root->right, newNode);
+    }
+
+    return root;
+}
+
+// Function to search for a Pokemon in a given owner's Pokedex.
+PokemonNode *searchPokemonBFS(PokemonNode *root, int id) {
+    // 1) If the pokemon wasn't found - return NULL
+    if(root == NULL) {
+        return NULL;
+    }
+
+    // 2) if the root's ID matches - return its node
+    if(root->data->id == id) {
+        return root;
+    }
+
+    // 3) Compare the left/right node ID values with the given ID and progress accordingly
+    if(id < root->data->id) {
+        return searchPokemonBFS(root->left, id);
+    }
+    if(id > root->data->id) {
+        return searchPokemonBFS(root->right, id);
+    }
+
+    return root;
+}
+
+// Function to go through the process of adding a pokemon to an existing pokedex
+void addPokemon(OwnerNode *owner) {
+    // 1) Get the pokemon's ID from the user
+    int pokemonId = readIntSafe("Enter ID to add:");
+
+    // 2) Check if the pokemon already exists in the pokedex
+    if(searchPokemonBFS(owner->pokedexRoot, pokemonId) != NULL) {
+        printf("Pokemon with ID %d is already in the Pokedex. No changes made.\n", pokemonId);
+        return;
+    }
+
+    // 4) create the new Pokemon node to be entered
+    PokemonData* newPokemonData = createPokemonData(pokedex[pokemonId - 1]);
+    PokemonNode* newPokemonNode = createPokemonNode(newPokemonData);
+
+    //3) If it doesn't - insert it to the pokedex
+    insertPokemonNode(owner->pokedexRoot, newPokemonNode);
+    printf("Pokemon %s (ID %d) added.\n", newPokemonData->name, newPokemonData->id);
+}
+
 // Function to create a new owner and add it to the linked-list of owners
 OwnerNode *createOwner(char *ownerName, PokemonNode *starter) {
     // 1) allocate memory for the new owner
