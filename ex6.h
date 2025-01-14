@@ -416,6 +416,14 @@ void removeOwnerFromCircularList(OwnerNode *target);
  */
 OwnerNode *findOwnerByName(const char *name);
 
+/**
+ * @brief Find an owner based on the number of steps to reach them starting from the head node.
+ * @param numberOfSteps Integer representing the number of steps we want to take to reach the owner.
+ * @return ownerNode pointer to the owner we've searched for.
+ * Why we made it: An organized way to locate an owner after they're displayed in the menu.
+ */
+OwnerNode* findOwnerByPosition(int numberOfSteps);
+
 /* ------------------------------------------------------------
    10) Owner Menus
    ------------------------------------------------------------ */
@@ -453,6 +461,12 @@ void mergePokedexMenu(void);
  * Why we made it: Demonstrates stepping through a circular list in a chosen direction.
  */
 void printOwnersCircular(void);
+
+/**
+ * @brief Print all owners in the list.
+ * Why we made it: A simple way to print all of them without dealing with circular repetition.
+ */
+void printAllOwners(void);
 
 /* ------------------------------------------------------------
    12) Cleanup All Owners at Program End

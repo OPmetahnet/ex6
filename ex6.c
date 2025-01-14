@@ -334,6 +334,42 @@ void openPokedexMenu() {
 
     printf("New Pokedex created for %s with starter %s.\n", trainerName, starter->data->name);
 }
+
+// Function to print
+void printAllOwners() {
+    // 1) If the list is empty print nothing and return
+    if(ownerHead == NULL) {
+        return;
+    }
+
+
+    printf("1. %s\n", ownerHead->ownerName);
+    // 2) If the list is comprised only of one node print it and return
+    if(ownerHead->next == NULL) {
+        return;
+    }
+
+    int i = 2;
+    OwnerNode* printNode = ownerHead->next;
+
+    // 3) print all owners in a menu list
+    while(printNode != ownerHead) {
+        printf("%d. %s\n", i, printNode->ownerName);
+        i++;
+        printNode = printNode->next;
+    }
+}
+
+// Function to find the owner by order number starting from head
+OwnerNode *findOwnerByPosition(int orderPosition) {
+    OwnerNode* searchNode = ownerHead;
+
+    while(orderPosition > 0) {
+        searchNode = searchNode->next;
+        orderPosition--;
+    }
+
+    return searchNode;
 }
 
 // --------------------------------------------------------------
