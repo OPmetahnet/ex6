@@ -483,7 +483,11 @@ void enterExistingPokedexMenu()
 {
     // list owners
     printf("\nExisting Pokedexes:\n");
-    // you need to implement a few things here :)
+    printAllOwners();
+
+    //get owner choice from the user
+    int pokedexChoice = readIntSafe("Choose a Pokedex by number: ");
+    OwnerNode* cur = findOwnerByPosition(pokedexChoice - 1);
 
     printf("\nEntering %s's Pokedex...\n", cur->ownerName);
 
