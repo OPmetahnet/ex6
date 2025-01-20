@@ -179,6 +179,14 @@ void freeOwnerNode(OwnerNode *owner);
    ------------------------------------------------------------ */
 
 /**
+ * @brief Find the minimum element of the tree based on ID.
+ * @param root PokemonNode pointer type BST.
+ * @return The min node we're looking for.
+ * Why we made it: organized and easy way to find the min element in our BST.
+ */
+PokemonNode* findMinTreeElement(PokemonNode* root);
+
+/**
  * @brief Insert a PokemonNode into BST by ID; duplicates freed.
  * @param root pointer to BST root
  * @param newNode node to insert
@@ -197,6 +205,14 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode);
 PokemonNode *searchPokemonBFS(PokemonNode *root, int id);
 
 /**
+ * @brief Searches for the node to replace a given node to remove.
+ * @param root Pokemon node pointer which we'd like to remove from the Pokedex tree.
+ * @return The node were are searching for.
+ * Why we made it:
+ */
+PokemonNode* findNodeReplacementBST(PokemonNode* root);
+
+/**
  * @brief Remove node from BST by ID if found (BST removal logic).
  * @param root BST root
  * @param id ID to remove
@@ -208,7 +224,7 @@ PokemonNode *removeNodeBST(PokemonNode *root, int id);
 /**
  * @brief Combine BFS search + BST removal to remove Pokemon by ID.
  * @param root BST root
- * @param id the ID to remove
+ * @param id ID to remove
  * @return updated BST root
  * Why we made it: BFS confirms existence, then removeNodeBST does the removal.
  */

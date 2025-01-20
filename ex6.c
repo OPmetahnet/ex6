@@ -704,6 +704,83 @@ int compareByNameNode(const void *a, const void *b) {
 }
 
 // --------------------------------------------------------------
+// Pokemon Releasing
+// --------------------------------------------------------------
+
+// Function to find the min element in a BST
+PokemonNode* findMinTreeElement(PokemonNode* root) {
+    PokemonNode* minFinder = root->right;
+
+    //find the leftmost member of the tree
+    while(minFinder != NULL && minFinder->left != NULL) {
+        minFinder = minFinder->left;
+    }
+    return minFinder;
+}
+
+// Function to remove the node from the tree based on its ID
+PokemonNode *removeNodeBST(PokemonNode *root, int id) {
+    // 1) If the id isn't found - return
+    if(root == NULL) {
+        printf("No Pokemon with ID %d found.\n", id);
+        return root;
+    }
+
+    // 2) If ID is smaller go left
+    if(id < root->data->id) {
+        root->left = removePokemonByID(root->left, id);
+    }
+    // 3) If ID is larger go right
+    else if(id > root->data->id) {
+        root->right = removePokemonByID(root->right, id);
+    }
+    // 4) If ID has been found:
+    else {
+        printf("Removing Pokemon %s (ID %d).\n", pokedex[id - 1].name, id);
+        // 4.1) If there is only one child from the right
+        if(root->left == NULL) {
+            PokemonNode* temp = root->right;
+            freePokemonNode(root);
+            return temp;
+        }
+        // 4.2) If there is only one child from the left
+        if(root->right == NULL) {
+            PokemonNode* temp = root->left;
+            freePokemonNode(root);
+            return temp;
+        }
+        // 4.3) If the node has two children - find the successor, copy its data and free it
+        PokemonNode* temp = findMinTreeElement(root->right);
+        freePokemonData(root->data);
+        root->data = temp->data;
+        root->right = removePokemonByID(root->right, temp->data->id);
+    }
+
+    return root;
+}
+
+// Function to search for a node to delete and get rid of it if found
+PokemonNode *removePokemonByID(PokemonNode *root, int id) {
+    root = removeNodeBST(root ,id);
+
+    return root;
+}
+
+// Function to free a pokemon by its given id(prompted to user prior)
+void freePokemon(OwnerNode *owner) {
+    // 1) If the Pokedex is empty - print message and return
+    if(owner->pokedexRoot == NULL) {
+        printf("No Pokemon to release.\n");
+        return;
+    }
+    // 2) Get the ID of the Pokemon the user wishes to release
+    int idToFree = readIntSafe("Enter Pokemon ID to release: ");
+
+    // 3) Remove the Pokemon's node from the Owner's Pokemon tree
+    owner->pokedexRoot = removePokemonByID(owner->pokedexRoot, idToFree);
+}
+
+// --------------------------------------------------------------
 // Sub-menu for existing Pokedex
 // --------------------------------------------------------------
 void enterExistingPokedexMenu()
