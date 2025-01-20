@@ -826,6 +826,53 @@ void pokemonFight(OwnerNode *owner) {
 }
 
 // --------------------------------------------------------------
+// Pokemon Evolution
+// --------------------------------------------------------------
+void evolvePokemon(OwnerNode *owner) {
+    // 1) If the owner has no Pokemon - print message and return
+    if(owner->pokedexRoot == NULL) {
+        printf("Cannot evolve. Pokedex empty.\n");
+        return;
+    }
+
+    // 2) Get the ID of the Pokemon to evolve and try to locate it
+    int idToEvolve = readIntSafe("Enter ID of Pokemon to evolve: ");
+    PokemonNode* pokemonToEvolve = searchPokemonBFS(owner->pokedexRoot, idToEvolve);
+    if(pokemonToEvolve == NULL) {
+        printf("No Pokemon with ID %d found.\n", idToEvolve);
+        return;
+    }
+
+    // 3) Check if the Pokemon can evolve
+    if(pokemonToEvolve->data->CAN_EVOLVE == CANNOT_EVOLVE){
+        printf("%s (ID %d) cannot evolve.\n", pokemonToEvolve->data->name, pokemonToEvolve->data->id);
+        return;
+    }
+
+    //if the evolved form already exists in the Pokedex - release the unevolved form
+    if(searchPokemonBFS(owner->pokedexRoot, idToEvolve + 1) != NULL) {
+        printf("Evolution ID %d (%s) already in the Pokedex. Releasing %s (ID %d).\n",
+                      idToEvolve + 1,
+                      pokedex[idToEvolve].name,
+                      pokedex[idToEvolve - 1].name,
+                      idToEvolve);
+        owner->pokedexRoot = removePokemonByID(owner->pokedexRoot, idToEvolve);
+        return;
+    }
+
+    //if the Pokemon can evolve - remove the old form and insert the new
+    owner->pokedexRoot = removePokemonByID(owner->pokedexRoot, idToEvolve);
+    PokemonData* evolutionData = createPokemonData(pokedex[idToEvolve]);
+    PokemonNode* evolvedPokemon = createPokemonNode(evolutionData);
+    owner->pokedexRoot = insertPokemonNode(owner->pokedexRoot, evolvedPokemon);
+    printf("Pokemon evolved from %s (ID %d) to %s (ID %d).\n",
+                  pokedex[idToEvolve - 1].name,
+                  idToEvolve,
+                  pokedex[idToEvolve].name,
+                  idToEvolve + 1);
+}
+
+// --------------------------------------------------------------
 // Sub-menu for existing Pokedex
 // --------------------------------------------------------------
 void enterExistingPokedexMenu()
