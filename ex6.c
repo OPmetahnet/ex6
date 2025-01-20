@@ -314,7 +314,7 @@ PokemonNode *searchPokemonBFS(PokemonNode *root, int id) {
 // --------------------------------------------------------------
 void addPokemon(OwnerNode *owner) {
     // 1) Get the pokemon's ID from the user
-    int pokemonId = readIntSafe("Enter ID to add:");
+    int pokemonId = readIntSafe("Enter ID to add: ");
 
     // 2) Validate the ID (if it's in range of 1-151 - Pokedex entries)
     if(pokemonId < 1 || pokemonId > 151) {
@@ -360,13 +360,18 @@ OwnerNode *createOwner(char *ownerName, PokemonNode *starter) {
 // --------------------------------------------------------------
 void openPokedexMenu() {
     // 1) get the name and starter choice form the user
-    printf("Your name:");
+    printf("Your name: ");
     char* trainerName = getDynamicInput();
+    if(findOwnerByName(trainerName) != NULL) {
+        printf("Owner '%s' already exists. Not creating a new Pokedex.\n", trainerName);
+        free(trainerName);
+        return;
+    }
     int starterChoice = readIntSafe("Choose Starter:\n"
                  "1. Bulbasaur\n"
                  "2. Charmander\n"
                  "3. Squirtle\n"
-                 "Your Choice:");
+                 "Your choice: ");
 
     PokemonData* data = NULL;
 
@@ -1067,7 +1072,7 @@ void deletePokedex() {
     }
 
     // 2) Get the Pokedex to delete from the user
-    printf("=== Delete a Pokedex ===\n");
+    printf("\n=== Delete a Pokedex ===\n");
     printAllOwners();
     int pokedexToDelete = readIntSafe("Choose a Pokedex to delete by number: ");
     OwnerNode* nodeToDelete = findOwnerByPosition(pokedexToDelete - 1);
@@ -1300,7 +1305,7 @@ void mainMenu()
         printf("5. Sort Owners by Name\n");
         printf("6. Print Owners in a direction X times\n");
         printf("7. Exit\n");
-        choice = readIntSafe("Your choice:");
+        choice = readIntSafe("Your choice: ");
 
         switch (choice)
         {
@@ -1314,13 +1319,13 @@ void mainMenu()
             deletePokedex();
             break;
         case 4:
-            //mergePokedexMenu();
+            mergePokedexMenu();
             break;
         case 5:
-            //sortOwners();
+            sortOwners();
             break;
         case 6:
-            //printOwnersCircular();
+            printOwnersCircular();
             break;
         case 7:
             printf("Goodbye!\n");
