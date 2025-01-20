@@ -622,6 +622,87 @@ void postOrderGeneric(PokemonNode *root, VisitNodeFunc visit) {
     visit(root);
 }
 
+// Function to alphabetically all nodes alphabetically
+void displayAlphabetical(PokemonNode *root) {
+    VisitNodeFunc nodePrintPtr = printPokemonNode;
+
+    //init node array and copy all nodes into it
+    NodeArray* nodeArray = malloc(sizeof(NodeArray));
+    if(nodeArray == NULL) {
+        printf("Memory allocation error.\n");
+        exit(1);
+    }
+    initNodeArray(nodeArray, 1);
+    collectAll(root, nodeArray);
+
+    //sort the array using a generic Pokemon node name comparison function
+    qsort(nodeArray->nodes, nodeArray->size, sizeof(PokemonNode*), compareByNameNode);
+
+    //print the sorted array by its order
+    for(int i = 0; i < nodeArray->size; i++) {
+        nodePrintPtr(nodeArray->nodes[i]);
+    }
+
+    //free the node array
+    free(nodeArray->nodes);
+    free(nodeArray);
+}
+
+// Function to init the node array with a given capacity
+void initNodeArray(NodeArray *na, int cap) {
+    na->capacity = cap;
+    na->nodes = malloc(cap * sizeof(PokemonNode*));
+    if(na->nodes == NULL) {
+        printf("Memory allocation error.\n");
+        exit(1);
+    }
+    na->size = 0;
+}
+
+// Function to copy all given Pokedex tree nodes into a NodeArray
+void collectAll(PokemonNode *root, NodeArray *na) {
+    if(root == NULL || na == NULL) {
+        return;
+    }
+    addNode(na, root);
+    collectAll(root->left, na);
+    collectAll(root->right, na);
+}
+
+// Function to add a Pokemon node into a given node array
+void addNode(NodeArray *na, PokemonNode *node) {
+    if(node == NULL || na == NULL) {
+        return;
+    }
+
+    //if the capacity was reached - double it
+    if(na->size == na->capacity) {
+        na->capacity *= 2;
+    }
+
+    //reallocate space for one more node in the node array
+    PokemonNode** temp = realloc(na->nodes, na->capacity * sizeof(PokemonNode*));
+    if(temp == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    na->nodes = temp;
+
+    na->nodes[na->size++] = node;
+}
+
+// Function to compare to Pokemon names for two given Pokemon nodes
+int compareByNameNode(const void *a, const void *b) {
+    PokemonNode* nodeA = *(PokemonNode**)a;
+    PokemonNode* nodeB = *(PokemonNode**)b;
+    char* name1 = myStrdup(nodeA->data->name);
+    char* name2 = myStrdup(nodeB->data->name);
+    int result = strcmp(name1, name2);
+    free(name1);
+    free(name2);
+    return result;
+}
+
 // --------------------------------------------------------------
 // Sub-menu for existing Pokedex
 // --------------------------------------------------------------
