@@ -513,6 +513,13 @@ void mergePokedexMenu(void);
    ------------------------------------------------------------ */
 
 /**
+ * @brief check if given printing direction is valid and checking the directions itself.
+ * @param direction pointer to character representing the direction.
+ * @return 1 if right/forward, -1 if left/backward and 0 if invalid.
+ */
+int checkDirection(char* direction);
+
+/**
  * @brief Print owners left or right from head, repeating as many times as user wants.
  * Why we made it: Demonstrates stepping through a circular list in a chosen direction.
  */

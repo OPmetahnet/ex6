@@ -1209,6 +1209,82 @@ void swapOwnerNodesData(OwnerNode* owner1, OwnerNode* owner2) {
 }
 
 // --------------------------------------------------------------
+// Circular Owner Printing
+// --------------------------------------------------------------
+void printOwnersCircular() {
+    if(ownerHead == NULL) {
+        printf("No owners.\n");
+        return;
+    }
+
+    //get direction from the user
+    printf("Enter direction (F or B): ");
+    char* direction = getDynamicInput();
+
+    //check validity of the direction and get input again if needed
+    while(checkDirection(direction) == 0) {
+        printf("Invalid direction, must be L or R.\n");
+        printf("Enter direction (F or B): ");
+        free(direction);
+        direction = getDynamicInput();
+    }
+
+    //get number of prints from the user
+    int numberOfPrints = readIntSafe("How many prints? ");
+
+    //if there is only one node
+    if(ownerHead->next == NULL) {
+        for(int i = 0; i < numberOfPrints; i++) {
+            printf("[%d] %s\n", i, ownerHead->ownerName);
+        }
+        free(direction);
+        return;
+    }
+
+    OwnerNode* currentNode = ownerHead;
+
+    //print forward
+    if(checkDirection(direction) == 1) {
+        int i = 1;
+        while(numberOfPrints > 0 && currentNode->next != NULL) {
+            printf("[%d] %s\n", i, currentNode->ownerName);
+            numberOfPrints--;
+            i++;
+            //go to next node
+            currentNode = currentNode->next;
+        }
+        free(direction);
+        return;
+    }
+
+    //if direction is backwards - print backwards
+    while(numberOfPrints > 0 && currentNode->prev != NULL) {
+        int i = 1;
+        while(numberOfPrints > 0 && currentNode->prev != NULL) {
+            printf("[%d] %s\n", i, currentNode->ownerName);
+            numberOfPrints--;
+            i++;
+            //go to prev node
+            currentNode = currentNode->prev;
+        }
+        free(direction);
+        return;
+    }
+}
+
+// Function to simultaneously check validity and orientation of a given direction character input
+int checkDirection(char* direction) {
+    if(direction[0] == 'f' || direction[0] == 'F' || direction[0] == 'r' || direction[0] == 'R') {
+        return 1;
+    }
+    if(direction[0] == 'b' || direction[0] == 'B' || direction[0] == 'l' || direction[0] == 'L') {
+        return -1;
+    }
+
+    return 0;
+}
+
+// --------------------------------------------------------------
 // Main Menu
 // --------------------------------------------------------------
 void mainMenu()
