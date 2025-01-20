@@ -565,6 +565,62 @@ void displayBFS(PokemonNode *root) {
     free(bfsQueue);
 }
 
+// Function to traverse the tree in pre-order method
+void preOrderTraversal(PokemonNode *root) {
+    VisitNodeFunc nodePrintPtr = printPokemonNode;
+    preOrderGeneric(root, nodePrintPtr);
+}
+
+// Function to print nodes based on given fPtr and Pokedex tree using pre-order
+void preOrderGeneric(PokemonNode *root, VisitNodeFunc visit) {
+    if(root == NULL) {
+        return;
+    }
+    //print root first
+    visit(root);
+    //print left side second
+    preOrderGeneric(root->left, visit);
+    //print right side last
+    preOrderGeneric(root->right, visit);
+}
+
+// Function to traverse nodes by in-order method
+void inOrderTraversal(PokemonNode *root) {
+    VisitNodeFunc nodePrintPtr = printPokemonNode;
+    inOrderGeneric(root, nodePrintPtr);
+}
+
+// Function to print nodes based on given fPtr and Pokedex tree using in-order
+void inOrderGeneric(PokemonNode *root, VisitNodeFunc visit) {
+    if(root == NULL) {
+        return;
+    }
+    //print left side first
+    inOrderGeneric(root->left, visit);
+    //print root second
+    visit(root);
+    //print right side last
+    inOrderGeneric(root->right, visit);
+}
+
+// Function to traverse nodes by post-order method
+void postOrderTraversal(PokemonNode *root) {
+    VisitNodeFunc nodePrintPtr = printPokemonNode;
+    postOrderGeneric(root, nodePrintPtr);
+}
+
+// Function to print nodes based on given fPtr and Pokedex tree using post-order
+void postOrderGeneric(PokemonNode *root, VisitNodeFunc visit) {
+    if(root == NULL) {
+        return;
+    }
+    //print left side first
+    postOrderGeneric(root->left, visit);
+    //print right side second
+    postOrderGeneric(root->right, visit);
+    //print root last
+    visit(root);
+}
 
 // --------------------------------------------------------------
 // Sub-menu for existing Pokedex
