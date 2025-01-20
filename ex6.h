@@ -59,6 +59,18 @@ typedef struct OwnerNode
     struct OwnerNode *prev;   // Previous owner in the linked list
 } OwnerNode;
 
+// QueueNode Struct (to handle the queue better)
+typedef struct QueueNode {
+    PokemonNode* treeNode;
+    struct QueueNode *next;
+} QueueNode;
+
+// Queue Struct (for BFS)
+typedef struct Queue {
+    QueueNode *front;
+    QueueNode *rear;
+} Queue;
+
 // Global head pointer for the linked list of owners
 OwnerNode *ownerHead = NULL;
 
@@ -300,6 +312,20 @@ int compareByNameNode(const void *a, const void *b);
  * Why we made it: Provide user the option to see Pokemon sorted by name.
  */
 void displayAlphabetical(PokemonNode *root);
+
+/**
+ * @brief Simple enqueue function to push a node to a given queue
+ * @param queue a queue of Pokemon nodes used to handle BFS visit order
+ * @param node a node to be pushed into the queue
+ */
+void enqueue(Queue* queue, PokemonNode *node);
+
+/**
+ * @brief Simple function to get the first-out Pokemon node from the given queue
+ * @param queue A Queue containing Pokemon nodes belonging to an owner's Pokedex tree.
+ * @return PokemonNode pointer to the first-out element of the queue.
+ */
+PokemonNode *dequeue(Queue* queue);
 
 /**
  * @brief BFS user-friendly display (level-order).

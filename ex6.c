@@ -290,7 +290,7 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode) {
 PokemonNode *searchPokemonBFS(PokemonNode *root, int id) {
     // 1) If the pokemon wasn't found - return NULL
     if(root == NULL) {
-        return NULL;
+        return root;
     }
 
     // 2) if the root's ID matches - return its node
@@ -309,10 +309,18 @@ PokemonNode *searchPokemonBFS(PokemonNode *root, int id) {
     return root;
 }
 
-// Function to go through the process of adding a pokemon to an existing pokedex
+// --------------------------------------------------------------
+// Pokemon Addition
+// --------------------------------------------------------------
 void addPokemon(OwnerNode *owner) {
     // 1) Get the pokemon's ID from the user
     int pokemonId = readIntSafe("Enter ID to add:");
+
+    // 2) Validate the ID (if it's in range of 1-151 - Pokedex entries)
+    if(pokemonId < 1 || pokemonId > 151) {
+        printf("Invalid ID.\n");
+        return;
+    }
 
     // 2) Check if the pokemon already exists in the pokedex
     if(searchPokemonBFS(owner->pokedexRoot, pokemonId) != NULL) {
@@ -325,7 +333,7 @@ void addPokemon(OwnerNode *owner) {
     PokemonNode* newPokemonNode = createPokemonNode(newPokemonData);
 
     //3) If it doesn't - insert it to the pokedex
-    insertPokemonNode(owner->pokedexRoot, newPokemonNode);
+    owner->pokedexRoot = insertPokemonNode(owner->pokedexRoot, newPokemonNode);
     printf("Pokemon %s (ID %d) added.\n", newPokemonData->name, newPokemonData->id);
 }
 
@@ -347,7 +355,9 @@ OwnerNode *createOwner(char *ownerName, PokemonNode *starter) {
     return newOwner;
 }
 
-// Function to create a new Pokedex
+// --------------------------------------------------------------
+// Open a new Pokedex
+// --------------------------------------------------------------
 void openPokedexMenu() {
     // 1) get the name and starter choice form the user
     printf("Your name:");
@@ -397,7 +407,7 @@ void openPokedexMenu() {
     printf("New Pokedex created for %s with starter %s.\n", trainerName, starter->data->name);
 }
 
-// Function to print
+// Function to print all owners once in a numbered menu
 void printAllOwners() {
     // 1) If the list is empty print nothing and return
     if(ownerHead == NULL) {
@@ -475,6 +485,86 @@ void displayMenu(OwnerNode *owner)
         printf("Invalid choice.\n");
     }
 }
+
+// Function to add a Pokemon node to a given queue
+void enqueue(Queue* queue, PokemonNode *node) {
+    QueueNode* newNode = (QueueNode *)malloc(sizeof(QueueNode));
+    if (newNode == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+
+    //point the QueueNode's PokemonNode to the given node we wish to enqueue
+    newNode->treeNode = node;
+    newNode->next = NULL;
+
+    //if the queue is empty - make both first and last nodes the single node we enqueue
+    if(queue->rear == NULL) {
+        queue->rear = newNode;
+        queue->front = newNode;
+    }
+    //otherwise, make the new node the next element of the queue
+    else {
+        queue->rear->next = newNode;
+        queue->rear = newNode;
+    }
+}
+
+// Function to pop the first-out PokemonNode of a given queue an return it
+PokemonNode *dequeue(Queue* queue) {
+    if(queue->front == NULL) {
+        return NULL;
+    }
+
+    //store the last QueueNode and its PokemonNode
+    QueueNode* temp = queue->front;
+    PokemonNode* treeTemp = temp->treeNode;
+    //advance the queue forward
+    queue->front = queue->front->next;
+
+    //if the queue has been emptied - make both rear and front NULL
+    if(queue->front == NULL) {
+        queue->rear = NULL;
+    }
+
+    free(temp);
+    return treeTemp;
+}
+
+// Function to display all Pokemon using BFS method
+void displayBFS(PokemonNode *root) {
+    VisitNodeFunc nodePrintPtr = printPokemonNode;
+
+    //create a queue to handle the order of Pokemon tree nodes
+    Queue* bfsQueue = malloc(sizeof(Queue));
+    if(bfsQueue == NULL) {
+        printf("Memory allocation failed.\n");
+        exit(1);
+    }
+    bfsQueue->front = NULL;
+    bfsQueue->rear = NULL;
+
+    //enqueue the root node
+    enqueue(bfsQueue, root);
+
+    //go over the queue's nodes and print them as long as the queue still has nodes in it
+    while(bfsQueue->front != NULL) {
+        //take the first node to come out of the queue and print it
+        PokemonNode* current = dequeue(bfsQueue);
+        nodePrintPtr(current);
+
+        //check both sides for child nodes and enqueue them
+        if(current->left != NULL) {
+            enqueue(bfsQueue, current->left);
+        }
+        if(current->right != NULL) {
+            enqueue(bfsQueue, current->right);
+        }
+    }
+
+    free(bfsQueue);
+}
+
 
 // --------------------------------------------------------------
 // Sub-menu for existing Pokedex
