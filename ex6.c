@@ -216,9 +216,9 @@ void linkOwnerInCircularList(OwnerNode *owner) {
 
     // 2) if the list contains more than the head node - search for the node which points to head
     if(ownerHead->next != NULL) {
-    while(temp->next != ownerHead) {
-        temp = temp->next;
-    }
+        while(temp->next != ownerHead) {
+            temp = temp->next;
+        }
     }
 
     // 3) set its next pointer to owner and vice versa
@@ -314,7 +314,7 @@ PokemonNode *searchPokemonBFS(PokemonNode *root, int id) {
 // --------------------------------------------------------------
 void addPokemon(OwnerNode *owner) {
     // 1) Get the pokemon's ID from the user
-    int pokemonId = readIntSafe("Enter ID to add:");
+    int pokemonId = readIntSafe("Enter ID to add: ");
 
     // 2) Validate the ID (if it's in range of 1-151 - Pokedex entries)
     if(pokemonId < 1 || pokemonId > 151) {
@@ -360,13 +360,18 @@ OwnerNode *createOwner(char *ownerName, PokemonNode *starter) {
 // --------------------------------------------------------------
 void openPokedexMenu() {
     // 1) get the name and starter choice form the user
-    printf("Your name:");
+    printf("Your name: ");
     char* trainerName = getDynamicInput();
+    if(findOwnerByName(trainerName) != NULL) {
+        printf("Owner '%s' already exists. Not creating a new Pokedex.\n", trainerName);
+        free(trainerName);
+        return;
+    }
     int starterChoice = readIntSafe("Choose Starter:\n"
                  "1. Bulbasaur\n"
                  "2. Charmander\n"
                  "3. Squirtle\n"
-                 "Your Choice:");
+                 "Your choice: ");
 
     PokemonData* data = NULL;
 
@@ -413,7 +418,6 @@ void printAllOwners() {
     if(ownerHead == NULL) {
         return;
     }
-
 
     printf("1. %s\n", ownerHead->ownerName);
     // 2) If the list is comprised only of one node print it and return
@@ -1031,6 +1035,261 @@ void freeAllOwners() {
 }
 
 // --------------------------------------------------------------
+// Pokedex Deletion
+// --------------------------------------------------------------
+
+// Function to remove a target owner from the linked list of owners
+void removeOwnerFromCircularList(OwnerNode **target) {
+    //the list is circular, so checking either next or prev's existence is enough
+    if((*target)->next != NULL) {
+        (*target)->next->prev = (*target)->prev;
+        (*target)->prev->next = (*target)->next;
+    }
+
+    //if there is only one node left
+    if((*target)->prev == *target && (*target)->next == *target) {
+        freeOwnerNode(*target);
+        *target = NULL;
+        ownerHead = NULL;
+        return;
+    }
+
+    // if the node is the head node - update its pointer value
+    if(ownerHead == *target) {
+        ownerHead = (*target)->next;
+    }
+
+    freeOwnerNode(*target);
+    *target = NULL;
+}
+
+// Function to prompt user for a Pokedex to delete
+void deletePokedex() {
+    // 1) If there are no Pokedex return
+    if(ownerHead == NULL) {
+        printf("No existing Pokedexes to delete.\n");
+        return;
+    }
+
+    // 2) Get the Pokedex to delete from the user
+    printf("\n=== Delete a Pokedex ===\n");
+    printAllOwners();
+    int pokedexToDelete = readIntSafe("Choose a Pokedex to delete by number: ");
+    OwnerNode* nodeToDelete = findOwnerByPosition(pokedexToDelete - 1);
+    OwnerNode** nodePointer = &nodeToDelete;
+    printf("Deleting %s's entire Pokedex...\nPokedex deleted.\n", nodeToDelete->ownerName);
+    removeOwnerFromCircularList(nodePointer);
+    nodeToDelete = NULL;
+}
+
+// --------------------------------------------------------------
+// Pokedex Merging
+// --------------------------------------------------------------
+void mergePokedexMenu() {
+    //make sure that there are at least two Pokedexes
+    if(ownerHead == NULL || ownerHead->next == NULL) {
+        printf("Not enough owners to merge.\n");
+        return;
+    }
+
+    //get the owner names from the user
+    printf("\n=== Merge Pokedexes ===\nEnter name of first owner: ");
+    char* name1 = getDynamicInput();
+    printf("Enter name of second owner: ");
+    char* name2 = getDynamicInput();
+
+    //try to find both owners in the list(by name)
+    OwnerNode* owner1 = findOwnerByName(name1);
+    OwnerNode* owner2 = findOwnerByName(name2);
+
+    //if owners were'nt found in the list
+    if(owner1 == NULL || owner2 == NULL) {
+        printf("One or both owners not found.\n");
+        free(name1);
+        free(name2);
+        return;
+    }
+
+    //merge the 2nd owner into the 1st
+    printf("Merging %s and %s...\n", name1, name2);
+    mergePokedexes(owner1, owner2);
+
+    //prevent the merged Pokemon from being freed accidentally
+    owner2->pokedexRoot = NULL;
+    //delete the 2nd owner
+    removeOwnerFromCircularList(&owner2);
+    printf("Merge completed.\nOwner '%s' has been removed after merging.\n", name2);
+
+    free(name1);
+    free(name2);
+}
+
+// Function to find an owner by their given name
+OwnerNode *findOwnerByName(const char *name) {
+    if(ownerHead == NULL) {
+        return NULL;
+    }
+
+    OwnerNode* currentNode = ownerHead;
+
+    //go over the rest of the list and compare the names to the given name
+     do {
+        if(strcmp(currentNode->ownerName, name) == 0) {
+            return currentNode;
+        }
+        if(currentNode->next != NULL) {
+            currentNode = currentNode->next;
+        }
+    } while(currentNode != ownerHead);
+
+    return NULL;
+}
+
+// Function merge an owner into another owner(2->1) using BFS
+void mergePokedexes(OwnerNode* owner1, OwnerNode* owner2) {
+    if(owner1 == NULL || owner2 == NULL) {
+        return;
+    }
+
+    //init node array to use for BFS order
+    NodeArray* nodeArray = malloc(sizeof(NodeArray));
+    if(nodeArray == NULL) {
+        printf("Memory allocation error.\n");
+        exit(1);
+    }
+    initNodeArray(nodeArray, 1);
+
+    //insert all of owner2's Pokemon into the node array
+    collectAll(owner2->pokedexRoot, nodeArray);
+
+    //go over all of the node array's nodes and insert them one by one to owner1's Pokedex tree
+    for(int i = 0; i < nodeArray->size; i++) {
+        //if the pokemon is not already found in the Pokedex - insert it
+        if(searchPokemonBFS(owner1->pokedexRoot, nodeArray->nodes[i]->data->id) == NULL) {
+            insertPokemonNode(owner1->pokedexRoot, nodeArray->nodes[i]);
+        }
+    }
+
+    free(nodeArray->nodes);
+    free(nodeArray);
+}
+
+// --------------------------------------------------------------
+// Owner Sorting
+// --------------------------------------------------------------
+void sortOwners() {
+    //check if sorting is even needed
+    if(ownerHead == NULL || ownerHead->next == NULL) {
+        printf("0 or 1 owners only => no need to sort.\n");
+        return;
+    }
+
+    //bubble sort like algorithm
+    OwnerNode* iNode = ownerHead;
+    do {
+        OwnerNode* jNode = ownerHead;
+        do {
+            if(strcmp(iNode->ownerName, jNode->ownerName) < 0) {
+                swapOwnerNodesData(iNode, jNode);
+            }
+            jNode = jNode->next;
+        } while(jNode != ownerHead);
+        iNode = iNode->next;
+    } while(iNode != ownerHead);
+
+    printf("Owners sorted by name.\n");
+}
+
+// Function to swap the locations of the two given linked list owner nodes
+void swapOwnerNodesData(OwnerNode* owner1, OwnerNode* owner2) {
+    //swap the names
+    char* tempName = owner1->ownerName;
+    owner1->ownerName = owner2->ownerName;
+    owner2->ownerName = tempName;
+
+    //swap the PokemonData
+    PokemonNode* tempTree = owner1->pokedexRoot;
+    owner1->pokedexRoot = owner2->pokedexRoot;
+    owner2->pokedexRoot = tempTree;
+}
+
+// --------------------------------------------------------------
+// Circular Owner Printing
+// --------------------------------------------------------------
+void printOwnersCircular() {
+    if(ownerHead == NULL) {
+        printf("No owners.\n");
+        return;
+    }
+
+    //get direction from the user
+    printf("Enter direction (F or B): ");
+    char* direction = getDynamicInput();
+
+    //check validity of the direction and get input again if needed
+    while(checkDirection(direction) == 0) {
+        printf("Invalid direction, must be L or R.\n");
+        printf("Enter direction (F or B): ");
+        free(direction);
+        direction = getDynamicInput();
+    }
+
+    //get number of prints from the user
+    int numberOfPrints = readIntSafe("How many prints? ");
+
+    //if there is only one node
+    if(ownerHead->next == NULL) {
+        for(int i = 0; i < numberOfPrints; i++) {
+            printf("[%d] %s\n", i, ownerHead->ownerName);
+        }
+        free(direction);
+        return;
+    }
+
+    OwnerNode* currentNode = ownerHead;
+
+    //print forward
+    if(checkDirection(direction) == 1) {
+        int i = 1;
+        while(numberOfPrints > 0 && currentNode->next != NULL) {
+            printf("[%d] %s\n", i, currentNode->ownerName);
+            numberOfPrints--;
+            i++;
+            //go to next node
+            currentNode = currentNode->next;
+        }
+        free(direction);
+        return;
+    }
+
+    //if direction is backwards - print backwards
+    while(numberOfPrints > 0 && currentNode->prev != NULL) {
+        int i = 1;
+        while(numberOfPrints > 0 && currentNode->prev != NULL) {
+            printf("[%d] %s\n", i, currentNode->ownerName);
+            numberOfPrints--;
+            i++;
+            //go to prev node
+            currentNode = currentNode->prev;
+        }
+        free(direction);
+        return;
+    }
+}
+
+// Function to simultaneously check validity and orientation of a given direction character input
+int checkDirection(char* direction) {
+    if(direction[0] == 'f' || direction[0] == 'F' || direction[0] == 'r' || direction[0] == 'R') {
+        return 1;
+    }
+    if(direction[0] == 'b' || direction[0] == 'B' || direction[0] == 'l' || direction[0] == 'L') {
+        return -1;
+    }
+
+    return 0;
+}
+
+// --------------------------------------------------------------
 // Main Menu
 // --------------------------------------------------------------
 void mainMenu()
@@ -1046,7 +1305,7 @@ void mainMenu()
         printf("5. Sort Owners by Name\n");
         printf("6. Print Owners in a direction X times\n");
         printf("7. Exit\n");
-        choice = readIntSafe("Your choice:");
+        choice = readIntSafe("Your choice: ");
 
         switch (choice)
         {

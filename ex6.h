@@ -419,6 +419,13 @@ void displayMenu(OwnerNode *owner);
    ------------------------------------------------------------ */
 
 /**
+ * @brief helper function to swap the data of two nodes in the linked list
+ * @param owner1 owner node pointer
+ * @param owner2 owner node pointer
+ */
+void swapOwnerNodesData(OwnerNode* owner1, OwnerNode* owner2);
+
+/**
  * @brief Sort the circular owners list by name.
  * Why we made it: Another demonstration of pointer manipulation + sorting logic.
  */
@@ -445,10 +452,10 @@ void linkOwnerInCircularList(OwnerNode *newOwner);
 
 /**
  * @brief Remove a specific OwnerNode from the circular list, possibly updating head.
- * @param target pointer to the OwnerNode
+ * @param target double pointer to the OwnerNode
  * Why we made it: Deleting or merging owners requires removing them from the ring.
  */
-void removeOwnerFromCircularList(OwnerNode *target);
+void removeOwnerFromCircularList(OwnerNode **target);
 
 /**
  * @brief Find an owner by name in the circular list.
@@ -489,6 +496,13 @@ void openPokedexMenu(void);
 void deletePokedex(void);
 
 /**
+ * @brief Merge an owner's Pokedex into the other's.
+ * @param owner1 the owner to merge into.
+ * @param owner2 the owner to merge from and delete afterwards.
+ */
+void mergePokedexes(OwnerNode* owner1, OwnerNode* owner2);
+
+/**
  * @brief Merge the second owner's Pokedex into the first, then remove the second owner.
  * Why we made it: BFS copy demonstration plus removing an owner.
  */
@@ -497,6 +511,13 @@ void mergePokedexMenu(void);
 /* ------------------------------------------------------------
    11) Printing Owners in a Circle
    ------------------------------------------------------------ */
+
+/**
+ * @brief check if given printing direction is valid and checking the directions itself.
+ * @param direction pointer to character representing the direction.
+ * @return 1 if right/forward, -1 if left/backward and 0 if invalid.
+ */
+int checkDirection(char* direction);
 
 /**
  * @brief Print owners left or right from head, repeating as many times as user wants.
