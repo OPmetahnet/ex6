@@ -781,6 +781,51 @@ void freePokemon(OwnerNode *owner) {
 }
 
 // --------------------------------------------------------------
+// Pokemon Battling
+// --------------------------------------------------------------
+void pokemonFight(OwnerNode *owner) {
+    // 1) If the Pokedex is empty - print message and return
+    if(owner->pokedexRoot == NULL) {
+        printf("Pokedex is empty.\n");
+        return;
+    }
+
+    // 2) Get two ID's for the fighting Pokemon from the user
+    int battleIds[2];
+    battleIds[0] = readIntSafe("Enter ID of the first Pokemon: ");
+    battleIds[1] = readIntSafe("Enter ID of the second Pokemon: ");
+
+    // 3) Check for both Pokemon in the Pokedex
+    PokemonNode* searchResults[2];
+    for(int i = 0; i < 2; i++) {
+        searchResults[i] = searchPokemonBFS(owner->pokedexRoot, battleIds[i]);
+        if(searchResults[i] == NULL) {
+            printf("One or both Pokemon IDs not found.\n");
+            return;
+        }
+    }
+
+    // 4) If both are in the Pokedex - Fight!
+    float scores[2];
+    //print the Pokemon and their scores
+    for(int i = 0; i < 2; i++) {
+        scores[i] = (float)(searchResults[i]->data->attack * 1.5) + (float)(searchResults[i]->data->hp * 1.2);
+        printf("Pokemon %d: %s (Score = %.2f)\n", i + 1, searchResults[i]->data->name, scores[i]);
+    }
+
+    // 5) Handle different outcome cases
+    if(scores[0] > scores[1]) {
+        printf("%s wins!\n", searchResults[0]->data->name);
+    }
+    else if(scores[1] > scores[0]) {
+        printf("%s wins!\n", searchResults[1]->data->name);
+    }
+    else {
+        printf("It's a tie!\n");
+    }
+}
+
+// --------------------------------------------------------------
 // Sub-menu for existing Pokedex
 // --------------------------------------------------------------
 void enterExistingPokedexMenu()
