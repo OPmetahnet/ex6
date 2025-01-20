@@ -489,6 +489,13 @@ void openPokedexMenu(void);
 void deletePokedex(void);
 
 /**
+ * @brief Merge an owner's Pokedex into the other's.
+ * @param owner1 the owner to merge into.
+ * @param owner2 the owner to merge from and delete afterwards.
+ */
+void mergePokedexes(OwnerNode* owner1, OwnerNode* owner2);
+
+/**
  * @brief Merge the second owner's Pokedex into the first, then remove the second owner.
  * Why we made it: BFS copy demonstration plus removing an owner.
  */

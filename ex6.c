@@ -1078,6 +1078,98 @@ void deletePokedex() {
 }
 
 // --------------------------------------------------------------
+// Pokedex Merging
+// --------------------------------------------------------------
+void mergePokedexMenu() {
+    //make sure that there are at least two Pokedexes
+    if(ownerHead == NULL || ownerHead->next == NULL) {
+        printf("Not enough owners to merge.\n");
+        return;
+    }
+
+    //get the owner names from the user
+    printf("\n=== Merge Pokedexes ===\nEnter name of first owner: ");
+    char* name1 = getDynamicInput();
+    printf("Enter name of second owner: ");
+    char* name2 = getDynamicInput();
+
+    //try to find both owners in the list(by name)
+    OwnerNode* owner1 = findOwnerByName(name1);
+    OwnerNode* owner2 = findOwnerByName(name2);
+
+    //if owners were'nt found in the list
+    if(owner1 == NULL || owner2 == NULL) {
+        printf("One or both owners not found.\n");
+        free(name1);
+        free(name2);
+        return;
+    }
+
+    //merge the 2nd owner into the 1st
+    printf("Merging %s and %s...\n", name1, name2);
+    mergePokedexes(owner1, owner2);
+
+    //prevent the merged Pokemon from being freed accidentally
+    owner2->pokedexRoot = NULL;
+    //delete the 2nd owner
+    removeOwnerFromCircularList(&owner2);
+    printf("Merge completed.\nOwner '%s' has been removed after merging.\n", name2);
+
+    free(name1);
+    free(name2);
+}
+
+// Function to find an owner by their given name
+OwnerNode *findOwnerByName(const char *name) {
+    if(ownerHead == NULL) {
+        return NULL;
+    }
+
+    OwnerNode* currentNode = ownerHead;
+
+    //go over the rest of the list and compare the names to the given name
+     do {
+        if(strcmp(currentNode->ownerName, name) == 0) {
+            return currentNode;
+        }
+        if(currentNode->next != NULL) {
+            currentNode = currentNode->next;
+        }
+    } while(currentNode != ownerHead);
+
+    return NULL;
+}
+
+// Function merge an owner into another owner(2->1) using BFS
+void mergePokedexes(OwnerNode* owner1, OwnerNode* owner2) {
+    if(owner1 == NULL || owner2 == NULL) {
+        return;
+    }
+
+    //init node array to use for BFS order
+    NodeArray* nodeArray = malloc(sizeof(NodeArray));
+    if(nodeArray == NULL) {
+        printf("Memory allocation error.\n");
+        exit(1);
+    }
+    initNodeArray(nodeArray, 1);
+
+    //insert all of owner2's Pokemon into the node array
+    collectAll(owner2->pokedexRoot, nodeArray);
+
+    //go over all of the node array's nodes and insert them one by one to owner1's Pokedex tree
+    for(int i = 0; i < nodeArray->size; i++) {
+        //if the pokemon is not already found in the Pokedex - insert it
+        if(searchPokemonBFS(owner1->pokedexRoot, nodeArray->nodes[i]->data->id) == NULL) {
+            insertPokemonNode(owner1->pokedexRoot, nodeArray->nodes[i]);
+        }
+    }
+
+    free(nodeArray->nodes);
+    free(nodeArray);
+}
+
+// --------------------------------------------------------------
 // Main Menu
 // --------------------------------------------------------------
 void mainMenu()
