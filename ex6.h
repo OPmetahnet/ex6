@@ -59,6 +59,18 @@ typedef struct OwnerNode
     struct OwnerNode *prev;   // Previous owner in the linked list
 } OwnerNode;
 
+// QueueNode Struct (to handle the queue better)
+typedef struct QueueNode {
+    PokemonNode* treeNode;
+    struct QueueNode *next;
+} QueueNode;
+
+// Queue Struct (for BFS)
+typedef struct Queue {
+    QueueNode *front;
+    QueueNode *rear;
+} Queue;
+
 // Global head pointer for the linked list of owners
 OwnerNode *ownerHead = NULL;
 
@@ -167,6 +179,14 @@ void freeOwnerNode(OwnerNode *owner);
    ------------------------------------------------------------ */
 
 /**
+ * @brief Find the minimum element of the tree based on ID.
+ * @param root PokemonNode pointer type BST.
+ * @return The min node we're looking for.
+ * Why we made it: organized and easy way to find the min element in our BST.
+ */
+PokemonNode* findMinTreeElement(PokemonNode* root);
+
+/**
  * @brief Insert a PokemonNode into BST by ID; duplicates freed.
  * @param root pointer to BST root
  * @param newNode node to insert
@@ -185,6 +205,14 @@ PokemonNode *insertPokemonNode(PokemonNode *root, PokemonNode *newNode);
 PokemonNode *searchPokemonBFS(PokemonNode *root, int id);
 
 /**
+ * @brief Searches for the node to replace a given node to remove.
+ * @param root Pokemon node pointer which we'd like to remove from the Pokedex tree.
+ * @return The node were are searching for.
+ * Why we made it:
+ */
+PokemonNode* findNodeReplacementBST(PokemonNode* root);
+
+/**
  * @brief Remove node from BST by ID if found (BST removal logic).
  * @param root BST root
  * @param id ID to remove
@@ -196,7 +224,7 @@ PokemonNode *removeNodeBST(PokemonNode *root, int id);
 /**
  * @brief Combine BFS search + BST removal to remove Pokemon by ID.
  * @param root BST root
- * @param id the ID to remove
+ * @param id ID to remove
  * @return updated BST root
  * Why we made it: BFS confirms existence, then removeNodeBST does the removal.
  */
@@ -300,6 +328,20 @@ int compareByNameNode(const void *a, const void *b);
  * Why we made it: Provide user the option to see Pokemon sorted by name.
  */
 void displayAlphabetical(PokemonNode *root);
+
+/**
+ * @brief Simple enqueue function to push a node to a given queue
+ * @param queue a queue of Pokemon nodes used to handle BFS visit order
+ * @param node a node to be pushed into the queue
+ */
+void enqueue(Queue* queue, PokemonNode *node);
+
+/**
+ * @brief Simple function to get the first-out Pokemon node from the given queue
+ * @param queue A Queue containing Pokemon nodes belonging to an owner's Pokedex tree.
+ * @return PokemonNode pointer to the first-out element of the queue.
+ */
+PokemonNode *dequeue(Queue* queue);
 
 /**
  * @brief BFS user-friendly display (level-order).
@@ -416,6 +458,14 @@ void removeOwnerFromCircularList(OwnerNode *target);
  */
 OwnerNode *findOwnerByName(const char *name);
 
+/**
+ * @brief Find an owner based on the number of steps to reach them starting from the head node.
+ * @param numberOfSteps Integer representing the number of steps we want to take to reach the owner.
+ * @return ownerNode pointer to the owner we've searched for.
+ * Why we made it: An organized way to locate an owner after they're displayed in the menu.
+ */
+OwnerNode* findOwnerByPosition(int numberOfSteps);
+
 /* ------------------------------------------------------------
    10) Owner Menus
    ------------------------------------------------------------ */
@@ -453,6 +503,12 @@ void mergePokedexMenu(void);
  * Why we made it: Demonstrates stepping through a circular list in a chosen direction.
  */
 void printOwnersCircular(void);
+
+/**
+ * @brief Print all owners in the list.
+ * Why we made it: A simple way to print all of them without dealing with circular repetition.
+ */
+void printAllOwners(void);
 
 /* ------------------------------------------------------------
    12) Cleanup All Owners at Program End
