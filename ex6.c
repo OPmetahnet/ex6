@@ -216,9 +216,9 @@ void linkOwnerInCircularList(OwnerNode *owner) {
 
     // 2) if the list contains more than the head node - search for the node which points to head
     if(ownerHead->next != NULL) {
-    while(temp->next != ownerHead) {
-        temp = temp->next;
-    }
+        while(temp->next != ownerHead) {
+            temp = temp->next;
+        }
     }
 
     // 3) set its next pointer to owner and vice versa
@@ -413,7 +413,6 @@ void printAllOwners() {
     if(ownerHead == NULL) {
         return;
     }
-
 
     printf("1. %s\n", ownerHead->ownerName);
     // 2) If the list is comprised only of one node print it and return
@@ -1031,6 +1030,54 @@ void freeAllOwners() {
 }
 
 // --------------------------------------------------------------
+// Pokedex Deletion
+// --------------------------------------------------------------
+
+// Function to remove a target owner from the linked list of owners
+void removeOwnerFromCircularList(OwnerNode **target) {
+    //the list is circular, so checking either next or prev's existence is enough
+    if((*target)->next != NULL) {
+        (*target)->next->prev = (*target)->prev;
+        (*target)->prev->next = (*target)->next;
+    }
+
+    //if there is only one node left
+    if((*target)->prev == *target && (*target)->next == *target) {
+        freeOwnerNode(*target);
+        *target = NULL;
+        ownerHead = NULL;
+        return;
+    }
+
+    // if the node is the head node - update its pointer value
+    if(ownerHead == *target) {
+        ownerHead = (*target)->next;
+    }
+
+    freeOwnerNode(*target);
+    *target = NULL;
+}
+
+// Function to prompt user for a Pokedex to delete
+void deletePokedex() {
+    // 1) If there are no Pokedex return
+    if(ownerHead == NULL) {
+        printf("No existing Pokedexes to delete.\n");
+        return;
+    }
+
+    // 2) Get the Pokedex to delete from the user
+    printf("=== Delete a Pokedex ===\n");
+    printAllOwners();
+    int pokedexToDelete = readIntSafe("Choose a Pokedex to delete by number: ");
+    OwnerNode* nodeToDelete = findOwnerByPosition(pokedexToDelete - 1);
+    OwnerNode** nodePointer = &nodeToDelete;
+    printf("Deleting %s's entire Pokedex...\nPokedex deleted.\n", nodeToDelete->ownerName);
+    removeOwnerFromCircularList(nodePointer);
+    nodeToDelete = NULL;
+}
+
+// --------------------------------------------------------------
 // Main Menu
 // --------------------------------------------------------------
 void mainMenu()
@@ -1060,13 +1107,13 @@ void mainMenu()
             deletePokedex();
             break;
         case 4:
-            mergePokedexMenu();
+            //mergePokedexMenu();
             break;
         case 5:
-            sortOwners();
+            //sortOwners();
             break;
         case 6:
-            printOwnersCircular();
+            //printOwnersCircular();
             break;
         case 7:
             printf("Goodbye!\n");
