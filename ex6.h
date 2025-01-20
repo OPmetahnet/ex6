@@ -419,6 +419,13 @@ void displayMenu(OwnerNode *owner);
    ------------------------------------------------------------ */
 
 /**
+ * @brief helper function to swap the data of two nodes in the linked list
+ * @param owner1 owner node pointer
+ * @param owner2 owner node pointer
+ */
+void swapOwnerNodesData(OwnerNode* owner1, OwnerNode* owner2);
+
+/**
  * @brief Sort the circular owners list by name.
  * Why we made it: Another demonstration of pointer manipulation + sorting logic.
  */

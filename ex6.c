@@ -1170,6 +1170,45 @@ void mergePokedexes(OwnerNode* owner1, OwnerNode* owner2) {
 }
 
 // --------------------------------------------------------------
+// Owner Sorting
+// --------------------------------------------------------------
+void sortOwners() {
+    //check if sorting is even needed
+    if(ownerHead == NULL || ownerHead->next == NULL) {
+        printf("0 or 1 owners only => no need to sort.\n");
+        return;
+    }
+
+    //bubble sort like algorithm
+    OwnerNode* iNode = ownerHead;
+    do {
+        OwnerNode* jNode = ownerHead;
+        do {
+            if(strcmp(iNode->ownerName, jNode->ownerName) < 0) {
+                swapOwnerNodesData(iNode, jNode);
+            }
+            jNode = jNode->next;
+        } while(jNode != ownerHead);
+        iNode = iNode->next;
+    } while(iNode != ownerHead);
+
+    printf("Owners sorted by name.\n");
+}
+
+// Function to swap the locations of the two given linked list owner nodes
+void swapOwnerNodesData(OwnerNode* owner1, OwnerNode* owner2) {
+    //swap the names
+    char* tempName = owner1->ownerName;
+    owner1->ownerName = owner2->ownerName;
+    owner2->ownerName = tempName;
+
+    //swap the PokemonData
+    PokemonNode* tempTree = owner1->pokedexRoot;
+    owner1->pokedexRoot = owner2->pokedexRoot;
+    owner2->pokedexRoot = tempTree;
+}
+
+// --------------------------------------------------------------
 // Main Menu
 // --------------------------------------------------------------
 void mainMenu()
