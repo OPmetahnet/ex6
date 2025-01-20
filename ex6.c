@@ -434,9 +434,15 @@ void printAllOwners() {
 
 // Function to find the owner by order number starting from head
 OwnerNode *findOwnerByPosition(int orderPosition) {
+    // 1) If there are no owners - return
+    if(ownerHead == NULL) {
+        return ownerHead;
+    }
+
     OwnerNode* searchNode = ownerHead;
 
-    while(orderPosition > 0) {
+    // 2) keep going until the number of movements needed is met
+    while(orderPosition > 0 && searchNode->next != NULL) {
         searchNode = searchNode->next;
         orderPosition--;
     }
@@ -877,12 +883,20 @@ void evolvePokemon(OwnerNode *owner) {
 // --------------------------------------------------------------
 void enterExistingPokedexMenu()
 {
+    //make sure the list isn't empty
+    if(ownerHead == NULL) {
+        printf("No existing Pokedexes.\n");
+        return;
+    }
+
     // list owners
     printf("\nExisting Pokedexes:\n");
     printAllOwners();
 
     //get owner choice from the user
     int pokedexChoice = readIntSafe("Choose a Pokedex by number: ");
+
+    //try to find the owner in the list
     OwnerNode* cur = findOwnerByPosition(pokedexChoice - 1);
 
     printf("\nEntering %s's Pokedex...\n", cur->ownerName);
